@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>남양주시 산업 구조 및 기업 현황 분석 대시보드</title>
+  <meta name="description" content="남양주시 기업·고용 41개월(2023.01~2026.05) 및 공장등록 6개 반기 데이터 기반 산업 구조 분석 인터랙티브 대시보드" />
+
+  <!-- Pretendard 웹폰트 -->
+  <link rel="stylesheet" as="style" crossorigin
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+
+  <!-- 스타일시트 -->
+  <link rel="stylesheet" href="css/style.css" />
+
+  <!-- 외부 라이브러리 (Three.js, Chart.js, Framer Motion) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/motion@10.18.0/dist/motion.umd.js"></script>
+</head>
+
+<body>
+  <div class="app-container">
+    <!-- 좌측 사이드바 내비게이션 -->
+    <aside class="sidebar" id="main-sidebar">
+      <div class="sidebar-header">
+        <div class="logo-badge">NYJ</div>
+        <div class="brand-info">
+          <h1>남양주시 산업분석</h1>
+          <span>NICE & 전국공장등록 DB</span>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section-title">Navigation</div>
+        <ul class="nav-list">
+          <li class="nav-item">
+            <a href="#hero" class="nav-link active">
+              <span class="nav-icon">🌐</span>
+              <span class="nav-text">홈 (히어로)</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="#sec-overview" class="nav-link">
+              <span class="nav-icon">📊</span>
+              <span class="nav-text">총괄 대시보드</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="#sec-employment" class="nav-link">
+              <span class="nav-icon">👥</span>
+              <span class="nav-text">01. 고용 변동</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="#sec-age" class="nav-link">
+              <span class="nav-icon">⏳</span>
+              <span class="nav-text">02. 업력 구조</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="#sec-industries" class="nav-link">
+              <span class="nav-icon">🏭</span>
+              <span class="nav-text">03. 핵심 5대 업종</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="#sec-dynamics" class="nav-link">
+              <span class="nav-icon">🚀</span>
+              <span class="nav-text">04. 신설 및 휴폐업</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="#sec-comparison" class="nav-link">
+              <span class="nav-icon">🗺️</span>
+              <span class="nav-text">05. 경기 5개 시군 비교</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="#sec-factories" class="nav-link">
+              <span class="nav-icon">⚙️</span>
+              <span class="nav-text">06. 공장등록 및 제조</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="#sec-relocation" class="nav-link">
+              <span class="nav-icon">🔄</span>
+              <span class="nav-text">07. 기업 이전 동향</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="#sec-policy" class="nav-link">
+              <span class="nav-icon">🎯</span>
+              <span class="nav-text">08. 4대 정책 제언</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="footer-meta">
+          <strong>기준 기간</strong><br />
+          기업·고용: 2023.01 ~ 2026.05<br />
+          공장등록: 2023.06 ~ 2025.12<br />
+          출처: 경기도 민간데이터 공동구매
+        </div>
+      </div>
+    </aside>
+
+    <!-- 우측 메인 콘텐츠 영역 -->
+    <main class="main-content">
+      <!-- 상단 스티키 바 -->
+      <header class="topbar">
+        <div class="topbar-left">
+          <button class="mobile-toggle" aria-label="메뉴 열기">☰</button>
+          <div class="breadcrumb">
+            <span>남양주시 빅데이터</span>
+            <span>/</span>
+            <span class="breadcrumb-curr">홈 (히어로)</span>
+          </div>
+        </div>
+        <div class="topbar-right">
+          <div class="quick-tag">
+            <span class="pulse-dot"></span>
+            <span>실시간 분석 인텔리전스</span>
+          </div>
+          <button class="btn-report-download btn-open-modal">
+            <span>📑</span>
+            <span>보고서 요약표</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- Three.js 3D 히어로 섹션 -->
+      <section class="hero-section" id="hero">
+        <div id="threejs-container"></div>
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+          <div class="hero-badge-row">
+            <span class="hero-badge">3D DATA INTELLIGENCE</span>
+            <span class="hero-badge" style="color: #34d399; border-color: rgba(52, 211, 153, 0.3);">KSIC 11차
+              표준산업분류</span>
+          </div>
+          <h2 class="hero-title">
+            남양주시 산업 구조 & <br />
+            <span class="gradient-text">기업 생태계 심층 분석 대시보드</span>
+          </h2>
+          <p class="hero-desc">
+            활동기업 41개월(34,219개 사) 및 등록공장 6개 반기 빅데이터를 입체적으로 시각화하여
+            양적 성장의 실체, 고용 양극화, 제조 기반 변화와 미래 4대 정책 방향을 한눈에 제시합니다.
+          </p>
+          <div class="hero-actions">
+            <a href="#sec-overview" class="btn-primary">
+              <span>남양주시 산업 현황 한눈에 보기</span>
+              <span>↓</span>
+            </a>
+            <button class="btn-secondary btn-open-modal">
+              <span>7대 영역 종합 진단</span>
+            </button>
+            <a href="#sec-employment" class="btn-secondary">
+              <span>남양주시 기업현황</span>
+            </a>
+            <a href="https://factory-sigma-mauve.vercel.app/" target="_blank" rel="noopener noreferrer"
+              class="btn-secondary" title="남양주시 공장등록 현황 대시보드 (새 창)">
+              <span>남양주시 공장등록 현황</span>
+            </a>
+          </div>
+        </div>
+      </section>!교ㅕㅓㅗ5996
+
+      <!-- 본문 대시보드 컨텐츠 -->
+
+      <div class="content-body">
+
+        <!-- [섹션 0] 총괄 대시보드 (Overview) -->
+        <section class="dashboard-section" id="sec-overview">
+          <div class="section-header">
+            <div>
+              <div class="section-tag-row">
+                <span class="section-num">OVERVIEW</span>
+                <span class="section-subtitle">핵심 6대 지표 요약</span>
+              </div>
+              <h3 class="section-title">남양주시 산업 현황 한눈에 보기</h3>
+            </div>
+          </div>
+
+          <!-- 핵심 6대 KPI 카드 -->
+          <div class="kpi-grid">
+            <div class="kpi-card" style="--card-accent: #10b981;">
+              <div class="kpi-label">
+                <span>활동기업 수</span>
+                <span class="kpi-change-badge up">▲ 36.6%</span>
+              </div>
+              <div class="kpi-value-row">
+                <span class="kpi-value counter-val" data-target="34219">0</span>
+                <span class="kpi-unit">개</span>
+              </div>
+              <div class="kpi-subtext">경기 5개 시군 중 2위 (41개월간 +9,164개)</div>
+            </div>
+
+            <div class="kpi-card" style="--card-accent: #38bdf8;">
+              <div class="kpi-label">
+                <span>국민연금 가입 종사자</span>
+                <span class="kpi-change-badge neutral">▲ 2.9%</span>
+              </div>
+              <div class="kpi-value-row">
+                <span class="kpi-value counter-val" data-target="51877">0</span>
+                <span class="kpi-unit">명</span>
+              </div>
+              <div class="kpi-subtext">기업 증가 대비 완만한 고용 증가세</div>
+            </div>
+
+            <div class="kpi-card" style="--card-accent: #f59e0b;">
+              <div class="kpi-label">
+                <span>등록 공장 수</span>
+                <span class="kpi-change-badge down">▼ 4.8%</span>
+              </div>
+              <div class="kpi-value-row">
+                <span class="kpi-value counter-val" data-target="2567">0</span>
+                <span class="kpi-unit">개</span>
+              </div>
+              <div class="kpi-subtext">6개 반기 동안 -130개 (24년 상반기 급감)</div>
+            </div>
+
+            <div class="kpi-card" style="--card-accent: #06b6d4;">
+              <div class="kpi-label">
+                <span>전문·과학·기술 기업</span>
+                <span class="kpi-change-badge up">1위</span>
+              </div>
+              <div class="kpi-value-row">
+                <span class="kpi-value counter-val" data-target="2183">0</span>
+                <span class="kpi-unit">개</span>
+              </div>
+              <div class="kpi-subtext">비교 5개 시군 중 가장 많은 지식기업</div>
+            </div>
+
+            <div class="kpi-card" style="--card-accent: #14b8a6;">
+              <div class="kpi-label">
+                <span>제조업 내 식료품 비중</span>
+                <span class="kpi-change-badge up">1위</span>
+              </div>
+              <div class="kpi-value-row">
+                <span class="kpi-value counter-val" data-target="11.2" data-float="true">0</span>
+                <span class="kpi-unit">%</span>
+              </div>
+              <div class="kpi-subtext">기업·공장·고용 4대 지표 트리플 상승</div>
+            </div>
+
+            <div class="kpi-card" style="--card-accent: #a855f7;">
+              <div class="kpi-label">
+                <span>신설 / 휴폐업 배수</span>
+                <span class="kpi-change-badge up">4.4배</span>
+              </div>
+              <div class="kpi-value-row">
+                <span class="kpi-value counter-val" data-target="724">0</span>
+                <span class="kpi-unit">건</span>
+              </div>
+              <div class="kpi-subtext">2026년 1~5월 신설 4년 중 최고치 반등</div>
+            </div>
+          </div>
+
+          <!-- 7대 영역 확인 사실 요약 테이블 카드 -->
+          <div class="dash-card">
+            <div class="dash-card-header">
+              <h4 class="dash-card-title">
+                <span>📋</span>
+                <span>보고서 7대 영역 진단 결과와 의미</span>
+              </h4>
+              <span class="dash-card-badge">종합 진단</span>
+            </div>
+            <div class="dash-table-wrapper">
+              <table class="dash-table">
+                <thead>
+                  <tr>
+                    <th>영역</th>
+                    <th>확인된 사실 (Fact)</th>
+                    <th>분석적 의미 (Meaning)</th>
+                    <th>진단 상태</th>
+                  </tr>
+                </thead>
+                <tbody id="table-diagnostics-body">
+                  <!-- JS에서 동적 렌더링 -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- [섹션 01] 고용 변동 (Employment) -->
+        <section class="dashboard-section" id="sec-employment">
+          <div class="section-header">
+            <div>
+              <div class="section-tag-row">
+                <span class="section-num">SECTION 01</span>
+                <span class="section-subtitle">기업 성장과 고용 변화</span>
+              </div>
+              <h3 class="section-title">성장의 실체는 기업 수 증가이며, 고용 확대로는 아직 미연결</h3>
+            </div>
+          </div>
+
+          <div class="insight-banner">
+            <div class="insight-icon">💡</div>
+            <div class="insight-content">
+              <h4>핵심 분석 인사이트</h4>
+              <p>활동기업은 25,055개에서 34,219개로 36.6% 대폭 증가했으나, 종사자는 50,434명에서 51,877명으로 2.9% 증가에 그쳤습니다.</p>
+              <ul>
+                <li><strong>기업당 고용 감소:</strong> 8.1명에서 7.3명으로 감소(-10.2%)하며 소규모 창업 중심 성장 구도를 보입니다.</li>
+                <li><strong>중간 규모 병목 현상:</strong> 1~4인(+6개) 및 30인 이상(+30개)은 늘었으나, <strong>5~29인 규모 구간(-195개, -1,736명)만
+                    유일하게 감소</strong>했습니다.</li>
+                <li><strong>지역별 편중:</strong> 종사자 증가는 <strong>다산2동(+1,131명), 화도읍(+984명), 별내동(+914명)</strong>에 집중되었습니다.
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="cards-grid-2">
+            <div class="dash-card">
+              <div class="dash-card-header">
+                <h4 class="dash-card-title">활동기업 수 vs 종사자 수 추이</h4>
+                <span class="dash-card-badge">2023 ~ 2026(1~5월)</span>
+              </div>
+              <div class="chart-wrapper">
+                <canvas id="chart-employment-trend"></canvas>
+              </div>
+            </div>
+
+            <div class="dash-card">
+              <div class="dash-card-header">
+                <h4 class="dash-card-title">규모 구간별 기업 및 종사자 증감</h4>
+                <span class="dash-card-badge">중간 규모 감소</span>
+              </div>
+              <div class="chart-wrapper">
+                <canvas id="chart-employment-size"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <div class="dash-card" style="margin-top: 24px;">
+            <div class="dash-card-header">
+              <h4 class="dash-card-title">읍면동별 종사자 증감 현황 (최근 1년)</h4>
+              <span class="dash-card-badge">16개 행정구역</span>
+            </div>
+            <div class="chart-wrapper" style="height: 300px;">
+              <canvas id="chart-employment-town"></canvas>
+            </div>
+          </div>
+        </section>
+
+        <!-- [섹션 02] 업력 구조 (Company Age) -->
+        <section class="dashboard-section" id="sec-age">
+          <div class="section-header">
+            <div>
+              <div class="section-tag-row">
+                <span class="section-num">SECTION 02</span>
+                <span class="section-subtitle">기업의 정착 정도와 업력 구성</span>
+              </div>
+              <h3 class="section-title">자리 잡는 도시로 이동 중이나, 업종과 지역에 따라 뚜렷한 양극화</h3>
+            </div>
+          </div>
+
+          <div class="insight-banner">
+            <div class="insight-icon">⏳</div>
+            <div class="insight-content">
+              <h4>정착 단계로의 순조로운 진입</h4>
+              <p>설립 10년 이상 법인이 2,653개에서 5,064개로 <strong>1.9배 급증</strong>하여 기업 기반이 확고해지고 있습니다.</p>
+              <ul>
+                <li>설립 5년 미만 기업 비중(46.3%)은 김포(47.9%)에 이어 5개 시군 중 두 번째로 젊은 구조입니다.</li>
+                <li><strong>별내동의 압도적 청년 기업 밀집:</strong> 별내동은 법인의 67.0%가 5년 미만으로 남양주시 5년 미만 법인의 38%가 별내동 한 곳에 모여 있습니다.
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="cards-grid-3">
+            <div class="dash-card">
+              <div class="dash-card-header">
+                <h4 class="dash-card-title">업력 구간 구성비 추이 (%)</h4>
+                <span class="dash-card-badge">비중 변화</span>
+              </div>
+              <div class="chart-wrapper">
+                <canvas id="chart-age-ratio"></canvas>
+              </div>
+            </div>
+
+            <div class="dash-card">
+              <div class="dash-card-header">
+                <h4 class="dash-card-title">10년 이상 vs 5년 미만 기업 수</h4>
+                <span class="dash-card-badge">기업 축적 현황</span>
+              </div>
+              <div class="chart-wrapper">
+                <canvas id="chart-age-counts"></canvas>
+              </div>
+            </div>
+
+            <div class="dash-card">
+              <div class="dash-card-header">
+                <h4 class="dash-card-title">읍면동별 5년 미만 비중 (%)</h4>
+                <span class="dash-card-badge">별내동 67% 1위</span>
+              </div>
+              <div class="chart-wrapper">
+                <canvas id="chart-town-age"></canvas>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- [섹션 03] 핵심 5대 업종 (Top 5 Industries) -->
+        <section class="dashboard-section" id="sec-industries">
+          <div class="section-header">
+            <div>
+              <div class="section-tag-row">
+                <span class="section-num">SECTION 03</span>
+                <span class="section-subtitle">주요 업종과 성장 구조</span>
+              </div>
+              <h3 class="section-title">핵심 5개 업종은 생활밀착·내수형이며, 제조업은 식료품 하나뿐</h3>
+            </div>
+          </div>
+
+          <div class="insight-banner">
+            <div class="insight-icon">🛒</div>
+            <div class="insight-content">
+              <h4>양적 성장과 질적 고용의 분리 & 식료품 제조업의 독보적 성장</h4>
+              <p>도매업(6,485개), 소매업(5,948개), 부동산업(3,416개), 전문직별 공사(1,655개), 식료품 제조업(798개)이 5대 핵심 축입니다.</p>
+              <ul>
+                <li><strong>부동산업의 간극:</strong> 기업 수는 3위이나 종사자 수는 24위에 불과하여 고용 창출력이 미미합니다.</li>
+                <li><strong>식료품 제조업 전방위 도약:</strong> 기업(+175개), 공장(+26개), 종사자(+549명), 비중(11.2%) 등 모든 지표가 유일하게 동반 상승했습니다.
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="cards-grid-2">
+            <div class="dash-card">
+              <div class="dash-card-header">
+                <h4 class="dash-card-title">핵심 5개 업종 기업 수 vs 종사자 수</h4>
+                <span class="dash-card-badge">2026.05 기준</span>
+              </div>
+              <div class="chart-wrapper">
+                <canvas id="chart-top5-compare"></canvas>
+              </div>
+            </div>
+
+            <div class="dash-card">
+              <div class="dash-card-header">
+                <h4 class="dash-card-title">식료품 제조 공장 증가 지역</h4>
+                <span class="dash-card-badge">진접·오남·다산 성장</span>
+              </div>
+              <div class="chart-wrapper">
+                <canvas id="chart-food-factories"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <div class="dash-card" style="margin-top: 24px;">
+            <div class="dash-card-header">
+              <h4 class="dash-card-title">핵심 5개 업종 상세 성적표</h4>
+              <span class="dash-card-badge">최근 1년 증감</span>
+            </div>
+            <div class="dash-table-wrapper">
+              <table class="dash-table">
+                <thead>
+                  <tr>
+                    <th>업종명</th>
+                    <th>기업 수</th>
+                    <th>종사자 수</th>
+                    <th>기업 증감 (1년)</th>
+                    <th>종사자 증감 (1년)</th>
+                    <th>최대 집적지</th>
+                    <th>특징</th>
+                  </tr>
+                </thead>
+                <tbody id="table-top5-body">
+                  <!-- JS에서 동적 렌더링 -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- [섹션 04] 신설 및 휴폐업 동향 (Business Dynamics) -->
+        <section class="dashboard-section" id="sec-dynamics">
+          <div class="section-header">
+            <div>
+              <div class="section-tag-row">
+                <span class="section-num">SECTION 04</span>
+                <span class="section-subtitle">기업 생태계와 창업 흐름</span>
+              </div>
+              <h3 class="section-title">신설이 휴폐업을 4.4배 앞서고, 2026년 창업은 4년 중 최고로 반등</h3>
+            </div>
+          </div>
+
+          <div class="insight-banner">
+            <div class="insight-icon">📈</div>
+            <div class="insight-content">
+              <h4>창업 활력의 부활과 지식서비스업의 대거 유입</h4>
+              <p>2026년 1~5월 신설 법인은 724건으로 전년 동기(515건) 대비 <strong>40.6% 폭증</strong>했습니다.</p>
+              <ul>
+                <li><strong>지식서비스 유입 가속:</strong> 기타 전문·과학·기술(1.58배), 전문 서비스업(1.45배)이 기존 법인 비중 대비 빠르게 유입되고 있습니다.</li>
+                <li><strong>신구 지역 격차:</strong> 창업 집중도는 별내동이 1.48인 반면, 전통 제조지인 화도읍(0.58), 양정동(0.36)은 신규 유입이 저조합니다.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="cards-grid-2">
+            <div class="dash-card">
+              <div class="dash-card-header">
+                <h4 class="dash-card-title">연도별 1~5월 신설 vs 휴폐업 및 순증 건수</h4>
+                <span class="dash-card-badge">2026년 4년 내 최고치</span>
+              </div>
+              <div class="chart-wrapper">
+                <canvas id="chart-dynamics-net"></canvas>
+              </div>
+            </div>
+
+            <div class="dash-card">
+              <div class="dash-card-header">
+                <h4 class="dash-card-title">업종별 신규 유입 배율 (신설 비중 ÷ 기존 법인 비중)</h4>
+                <span class="dash-card-badge">1.0 = 평균</span>
+              </div>
+              <div class="chart-wrapper">
+                <canvas id="chart-dynamics-multiplier"></canvas>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- [섹션 05] 경기 5개 시군 비교 (City Comparison) -->
+        <section class="dashboard-section" id="sec-comparison">
+          <div class="section-header">
+            <div>
+              <div class="section-tag-row">
+                <span class="section-num">SECTION 05</span>
+                <span class="section-subtitle">연계 시군 속 남양주의 위상</span>
+              </div>
+              <h3 class="section-title">규모는 2위이나 전문·과학·기술 서비스 기업은 5개 시군 중 1위</h3>
+            </div>
+          </div>
+
+          <div class="insight-banner">
+            <div class="insight-icon">🏛️</div>
+            <div class="insight-content">
+              <h4>김포·파주·양주·의정부와의 비교 우위</h4>
+              <p>남양주시는 총 34,219개 활동기업으로 김포(40,410개)에 이어 <strong>당당한 2위</strong>를 유지하고 있습니다.</p>
+              <ul>
+                <li><strong>차별화된 산업 구조:</strong> 제조업 중심의 김포(29.3%), 양주(27.6%), 파주(25.7%)와 달리 남양주는 20.7%의 서비스형 구조입니다.
+                </li>
+                <li><strong>고부가가치 지식산업 선도:</strong> 전문·과학 및 기술 서비스업 기업이 2,183개로 5개 시군 중 가장 많습니다.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="cards-grid-2">
+            <div class="dash-card">
+              <div class="dash-card-header">
+                <h4 class="dash-card-title">5개 시군 활동기업 수 및 성장률 비교</h4>
+                <span class="dash-card-badge">2026.05 기준</span>
+              </div>
+              <div class="chart-wrapper">
+                <canvas id="chart-city-growth"></canvas>
+              </div>
+            </div>
+
+            <div class="dash-card">
+              <div class="dash-card-header">
+                <h4 class="dash-card-title">전문·과학·기술 서비스 기업 수 (개)</h4>
+                <span class="dash-card-badge">남양주 2,183개로 1위</span>
+              </div>
+              <div class="chart-wrapper">
+                <canvas id="chart-city-scitech"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <div class="dash-card" style="margin-top: 24px;">
+            <div class="dash-card-header">
+              <h4 class="dash-card-title">경기 5개 시군 종합 비교 매트릭스</h4>
+              <span class="dash-card-badge">동일 방법론·지표</span>
+            </div>
+            <div class="dash-table-wrapper">
+              <table class="dash-table">
+                <thead>
+                  <tr>
+                    <th>시군명</th>
+                    <th>활동기업 수</th>
+                    <th>전기간 성장률</th>
+                    <th>제조업 비중</th>
+                    <th>제조 1위 업종</th>
+                    <th>전문과학기술 기업</th>
+                    <th>기업당 종사자 변화</th>
+                    <th>신설률 / 휴폐업률</th>
+                  </tr>
+                </thead>
+                <tbody id="table-city-body">
+                  <!-- JS 동적 렌더링 -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- [섹션 06] 공장 등록 및 제조 기반 (Factory Registration) -->
+        <section class="dashboard-section" id="sec-factories">
+          <div class="section-header">
+            <div>
+              <div class="section-tag-row">
+                <span class="section-num">SECTION 06</span>
+                <span class="section-subtitle">제조 기반과 공장 구조의 변화</span>
+              </div>
+              <h3 class="section-title">제조업의 전면 위축이 아니라 개별입지 소규모 공장의 국지적 유출</h3>
+            </div>
+          </div>
+
+          <div class="insight-banner">
+            <div class="insight-icon">🏭</div>
+            <div class="insight-content">
+              <h4>공장 감소의 실체 규명</h4>
+              <p>등록공장은 130개 감소했으나, 그중 129개가 <strong>2024년 상반기 한 반기에 일시 집중</strong>된 후 현재는 안정세를 찾았습니다.</p>
+              <ul>
+                <li><strong>소기업 중심 교체:</strong> 감소한 130개 공장은 전부 소기업이며, 나간 공장(평균 13.7년, 7.3명)을 더 작은 신규 공장(평균 0.8년, 6.0명)이
+                  채우고 있습니다.</li>
+                <li><strong>4개 읍면 유출 집중:</strong> 감소분의 72%가 화도읍(-93개, -811명)에서 발생했으며, 다산(+37개), 진접(+34개)은 오히려 공장이 늘었습니다.
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="cards-grid-2">
+            <div class="dash-card">
+              <div class="dash-card-header">
+                <h4 class="dash-card-title">읍면동별 등록공장 수 증감 (개)</h4>
+                <span class="dash-card-badge">화도 유출 vs 다산·진접 증가</span>
+              </div>
+              <div class="chart-wrapper">
+                <canvas id="chart-factory-town"></canvas>
+              </div>
+            </div>
+
+            <div class="dash-card">
+              <div class="dash-card-header">
+                <h4 class="dash-card-title">제조업 기업증감 × 공장증감 사분면</h4>
+                <span class="dash-card-badge">우상단: 동반 성장 (식료품 유일)</span>
+              </div>
+              <div class="chart-wrapper">
+                <canvas id="chart-factory-quadrant"></canvas>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- [섹션 07] 기업 이전 동향 (Firm Relocation) -->
+        <section class="dashboard-section" id="sec-relocation">
+          <div class="section-header">
+            <div>
+              <div class="section-tag-row">
+                <span class="section-num">SECTION 07</span>
+                <span class="section-subtitle">기업 이동 규모와 방향</span>
+              </div>
+              <h3 class="section-title">경기도 안에서는 순유출이나, 방향은 남쪽에서 받아 북쪽으로 보내는 형태</h3>
+            </div>
+          </div>
+
+          <div class="insight-banner">
+            <div class="insight-icon">🔄</div>
+            <div class="insight-content">
+              <h4>명확한 남북 이동 통로 & 54%의 높은 시내 이동 정착성</h4>
+              <p>경기도 전체 교류에서 141건 순유출되었으나 순유출 폭은 2023년 -57건에서 2025년 -27건으로 절반 이상 축소되었습니다.</p>
+              <ul>
+                <li><strong>남수북출(南受北出):</strong> 남쪽 하남시에서 +117건을 순유입받고 북쪽 포천시로 -163건을 순유출하는 뚜렷한 지리적 방향성이 확인됩니다.</li>
+                <li><strong>시내 이동 54%:</strong> 기업 이전 2,171건 중 1,175건은 관내에서 이동하여 남양주 내 지속 정착을 보여줍니다.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="cards-grid-2">
+            <div class="dash-card">
+              <div class="dash-card-header">
+                <h4 class="dash-card-title">연계 시군별 순이동 건수 (전입 - 전출)</h4>
+                <span class="dash-card-badge">하남 유입 vs 포천 유출</span>
+              </div>
+              <div class="chart-wrapper">
+                <canvas id="chart-relocation-corridor"></canvas>
+              </div>
+            </div>
+
+            <div class="dash-card">
+              <div class="dash-card-header">
+                <h4 class="dash-card-title">전체 기업 이전 중 시내 이동 비중</h4>
+                <span class="dash-card-badge">총 2,171건 중 54.1%</span>
+              </div>
+              <div class="chart-wrapper">
+                <canvas id="chart-relocation-donut"></canvas>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- [섹션 08] 종합 진단 및 4대 정책 제언 (Policy Roadmap) -->
+        <section class="dashboard-section" id="sec-policy">
+          <div class="section-header">
+            <div>
+              <div class="section-tag-row">
+                <span class="section-num">SECTION 08</span>
+                <span class="section-subtitle">종합 진단과 네 가지 방향</span>
+              </div>
+              <h3 class="section-title">확인된 사실에서 도출되는 4대 정책 로드맵</h3>
+            </div>
+          </div>
+
+          <div class="policy-card-grid">
+            <!-- 01 고용 사다리 지원 -->
+            <div class="policy-card">
+              <div class="policy-num">01</div>
+              <span class="policy-badge">고용 확대</span>
+              <h4 class="policy-title">5~29인 규모 고용 사다리 복원 지원</h4>
+              <div class="policy-meta-row">
+                <span class="policy-meta-label">분석 근거:</span>
+                <span class="policy-meta-val">5~29인 기업 -195개, 종사자 -1,736명 집중 감소</span>
+              </div>
+              <div class="policy-meta-row">
+                <span class="policy-meta-label">핵심 대상:</span>
+                <span class="policy-meta-val">1~4인에서 10인 이상으로 도약하려는 초기 성장 기업</span>
+              </div>
+              <div class="policy-action-box">
+                중간 규모 구간의 성장 병목을 해소하기 위해 '소기업 스케일업 바우처'와 청년 정규직 고용 연계 지원금을 집중 투입하여 고용 사다리를 복원합니다.
+              </div>
+            </div>
+
+            <!-- 02 계획입지 공급 논의 -->
+            <div class="policy-card">
+              <div class="policy-num">02</div>
+              <span class="policy-badge">산업 기반</span>
+              <h4 class="policy-title">친환경·스마트 계획입지 추가 공급 논의</h4>
+              <div class="policy-meta-row">
+                <span class="policy-meta-label">분석 근거:</span>
+                <span class="policy-meta-val">개별입지 95.5%, 사라진 공장 개별입지 97.5%</span>
+              </div>
+              <div class="policy-meta-row">
+                <span class="policy-meta-label">핵심 대상:</span>
+                <span class="policy-meta-val">공장 부지 한계로 포천 등 타 지역으로 이전하는 소규모 제조 공장</span>
+              </div>
+              <div class="policy-action-box">
+                6개 반기 내내 115~117개로 묶여 있는 계획입지를 확충하여 소규모 영세 공장이 체계적인 환경에서 안착할 수 있는 집적형 산업단지를 조성합니다.
+              </div>
+            </div>
+
+            <!-- 03 지역을 나눈 대응 -->
+            <div class="policy-card">
+              <div class="policy-num">03</div>
+              <span class="policy-badge">공간 전략</span>
+              <h4 class="policy-title">신도시 vs 전통제조지 이원화 맞춤 대응</h4>
+              <div class="policy-meta-row">
+                <span class="policy-meta-label">분석 근거:</span>
+                <span class="policy-meta-val">별내 창업집중도 1.48 vs 화도읍 공장 -93개(-811명)</span>
+              </div>
+              <div class="policy-meta-row">
+                <span class="policy-meta-label">핵심 대상:</span>
+                <span class="policy-meta-val">별내·다산 신도시 지식서비스 기업 & 화도·진건·와부·수동 제조 기업</span>
+              </div>
+              <div class="policy-action-box">
+                별내·다산은 소프트웨어/전문과학 창업 밸리로 특화 육성하고, 화도·진건 등 4개 읍면은 공장 이탈 사유 정밀 실태조사 후 제조 현대화 인프라를 지원합니다.
+              </div>
+            </div>
+
+            <!-- 04 식료품 제조 성장축 -->
+            <div class="policy-card">
+              <div class="policy-num">04</div>
+              <span class="policy-badge">전략 산업</span>
+              <h4 class="policy-title">식료품 제조업을 독보적 전략 성장축으로 육성</h4>
+              <div class="policy-meta-row">
+                <span class="policy-meta-label">분석 근거:</span>
+                <span class="policy-meta-val">기업 +175개, 공장 +26개, 종사자 +549명, 비중 11.2%로 전 지표 1위</span>
+              </div>
+              <div class="policy-meta-row">
+                <span class="policy-meta-label">핵심 대상:</span>
+                <span class="policy-meta-val">진접읍(80개), 화도읍(50개), 수동면(25개) 중심 식료품 클러스터</span>
+              </div>
+              <div class="policy-action-box">
+                모든 지표가 상승한 유일한 효자 업종인 식료품 제조를 '남양주 스마트 푸드테크 밸리'로 브랜딩하고 스마트 HACCP 및 수도권 신선물류망과 결합시킵니다.
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+
+      <!-- 푸터 -->
+      <footer class="site-footer">
+        <div class="footer-content">
+          <p><strong>남양주시 산업 구조 및 기업 현황 빅데이터 인텔리전스 시스템</strong></p>
+          <p>데이터 출처: 경기도 시군 민간데이터 공동구매 (NICE 기업DB) & 한국산업단지공단 전국공장등록현황</p>
+          <p>© 2026 Namyangju City Industrial Intelligence Dashboard. Built with Three.js & Chart.js.</p>
+        </div>
+      </footer>
+    </main>
+  </div>
+
+  <!-- 보고서 상세 요약 모달 팝업 -->
+  <div class="modal-backdrop" id="report-modal">
+    <div class="modal-window">
+      <button class="modal-close-btn" aria-label="닫기">✕</button>
+      <div style="margin-bottom: 20px;">
+        <span class="hero-badge" style="margin-bottom: 8px;">REPORT SUMMARY</span>
+        <h3 style="font-size: 1.4rem; color: #fff; margin-top: 6px;">남양주시 산업 구조 분석 보고서 종합 요약</h3>
+        <p style="color: var(--text-muted); font-size: 0.88rem;">2023.01 ~ 2026.05 기업·고용 41개월 및 공장등록 6개 반기 종합 분석</p>
+      </div>
+
+      <div
+        style="display: flex; flex-direction: column; gap: 16px; font-size: 0.9rem; color: #cbd5e1; line-height: 1.6;">
+        <div
+          style="background: rgba(16, 185, 129, 0.1); border-left: 4px solid var(--primary-emerald); padding: 12px 16px; border-radius: 4px;">
+          <strong style="color: #34d399;">핵심 결론:</strong> 남양주시는 활동기업이 36.6% 늘어난 고성장 도시이며, 김포에 이은 경기 5개 시군 2위의 대규모 기업 기반을
+          확보했습니다. 특히 전문·과학·기술 기업 수는 2,183개로 5개 시군 중 가장 많습니다.
+        </div>
+
+        <div
+          style="background: rgba(245, 158, 11, 0.1); border-left: 4px solid var(--accent-amber); padding: 12px 16px; border-radius: 4px;">
+          <strong style="color: #fbbf24;">핵심 당면 과제:</strong>
+          기업 수의 폭증에 비해 종사자는 2.9% 증가에 그쳤으며, 특히 5~29인 중간 규모 기업에서 기업(-195개)과 종사자(-1,736명)가 동시에 감소하는 병목이 나타납니다. 또한 개별입지 소규모
+          공장의 화도읍 등 4개 읍면 유출(-223개) 문제를 해결해야 합니다.
+        </div>
+
+        <div
+          style="background: rgba(56, 189, 248, 0.1); border-left: 4px solid var(--accent-cyan); padding: 12px 16px; border-radius: 4px;">
+          <strong style="color: #38bdf8;">향후 정책 방향:</strong>
+          1) 5~29인 스케일업 고용 사다리 지원, 2) 개별입지 유출 방지를 위한 스마트 계획입지 공급, 3) 별내·다산(지식창업)과 화도·진건(제조현대화) 이원화 대응, 4) 전 지표가 급증한 식료품
+          제조업의 거점 클러스터화.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 플로팅 탑(Top) 버튼 및 스크롤 진행률 링 -->
+  <button id="floatingTopBtn" class="floating-top-btn" aria-label="최상단으로 이동" title="최상단으로 이동">
+    <svg class="progress-ring" width="52" height="52" viewBox="0 0 52 52">
+      <!-- 배경 원 -->
+      <circle class="progress-ring-bg" cx="26" cy="26" r="23" fill="none" stroke-width="3" />
+      <!-- 진행률 원 (strokeDashoffset 제어) -->
+      <circle class="progress-ring-circle" cx="26" cy="26" r="23" fill="none" stroke-width="3" />
+    </svg>
+    <div class="top-btn-inner">
+      <svg class="top-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor"
+        stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M18 15l-6-6-6 6" />
+      </svg>
+    </div>
+  </button>
+
+  <!-- 스크립트 연결 순서: 데이터 -> 시각화 -> UI인터랙션 -> 3D히어로 -->
+  <script src="js/data.js"></script>
+  <script src="js/charts.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/three-hero.js"></script>
+</body>
+
+</html>
