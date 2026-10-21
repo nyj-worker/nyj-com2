@@ -14,7 +14,7 @@ const NYJ_DATA = {
       {
         id: "active_biz",
         label: "활동기업 수",
-        value: 34219,
+        value: 33559,
         unit: "개",
         change: "+36.6%",
         changeText: "41개월간 9,164개 증가",
@@ -36,7 +36,7 @@ const NYJ_DATA = {
       {
         id: "factories",
         label: "등록공장 수",
-        value: 2567,
+        value: 2711,
         unit: "개",
         change: "-4.8%",
         changeText: "6개 반기 동안 130개 감소",
