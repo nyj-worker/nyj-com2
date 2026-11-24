@@ -72,7 +72,7 @@
               order: 2,
             },
             {
-              label: "종사자 수 (명)",
+              label: "국민연금 가입 종사자 수 (명)",
               data: empData.yearlyTrends.employees,
               type: "line",
               borderColor: "#38bdf8",
@@ -97,15 +97,14 @@
               type: "linear",
               position: "left",
               title: { display: true, text: "활동기업 수 (개)", color: "#10b981" },
-              min: 24000,
-              max: 36000,
+              beginAtZero: true,
             },
             yEmp: {
               type: "linear",
               position: "right",
               title: { display: true, text: "종사자 수 (명)", color: "#38bdf8" },
-              min: 48000,
-              max: 53000,
+              suggestedMin: 106000,
+              suggestedMax: 110000,
               grid: { drawOnChartArea: false },
             },
           },
@@ -113,7 +112,7 @@
       });
     }
 
-    // 1-2. 규모 구간별 기업 vs 종사자 증감 수평 바 차트
+    // 1-2. NICE 기업DB의 규모 구간별 기업 수 증감
     const ctxSize = document.getElementById("chart-employment-size");
     if (ctxSize) {
       chartInstances.empSize = new Chart(ctxSize, {
@@ -129,14 +128,6 @@
               ),
               borderRadius: 5,
             },
-            {
-              label: "종사자 증감 (명)",
-              data: empData.sizeDistribution.map((d) => d.employeeDiff),
-              backgroundColor: empData.sizeDistribution.map((d) =>
-                d.employeeDiff >= 0 ? "rgba(56, 189, 248, 0.8)" : "rgba(251, 146, 60, 0.8)"
-              ),
-              borderRadius: 5,
-            },
           ],
         },
         options: {
@@ -144,7 +135,7 @@
           maintainAspectRatio: false,
           indexAxis: "y",
           plugins: {
-            legend: { position: "top" },
+            legend: { display: false },
           },
         },
       });
@@ -201,7 +192,7 @@
               backgroundColor: "#38bdf8",
             },
             {
-              label: "5~10년",
+              label: "5~10년 미만",
               data: ageData.ageBreakdownByPeriod.map((p) => p.mid5to10),
               backgroundColor: "#818cf8",
             },
@@ -209,6 +200,11 @@
               label: "10년 이상",
               data: ageData.ageBreakdownByPeriod.map((p) => p.over10),
               backgroundColor: "#10b981",
+            },
+            {
+              label: "설립일 미상",
+              data: ageData.ageBreakdownByPeriod.map((p) => p.unknown),
+              backgroundColor: "#94a3b8",
             },
           ],
         },
@@ -223,31 +219,31 @@
       });
     }
 
-    // 2-2. 10년 이상 vs 5년 미만 기업 수 추이
+    // 2-2. 보고서에 정확한 수가 표기된 두 시점의 업력 구간별 법인 수
     const ctxAgeCounts = document.getElementById("chart-age-counts");
     if (ctxAgeCounts) {
       chartInstances.ageCounts = new Chart(ctxAgeCounts, {
-        type: "line",
+        type: "bar",
         data: {
           labels: ageData.ageCounts.map((p) => p.period),
           datasets: [
             {
-              label: "10년 이상 법인 (1.9배 증가)",
-              data: ageData.ageCounts.map((p) => p.over10Count),
-              borderColor: "#10b981",
-              backgroundColor: "rgba(16, 185, 129, 0.15)",
-              borderWidth: 3,
-              fill: true,
-              tension: 0.3,
+              label: "5년 미만",
+              data: ageData.ageCounts.map((p) => p.under5Count),
+              backgroundColor: "#38bdf8",
+              borderRadius: 4,
             },
             {
-              label: "5년 미만 법인 (신규 유입 지속)",
-              data: ageData.ageCounts.map((p) => p.under5Count),
-              borderColor: "#38bdf8",
-              backgroundColor: "transparent",
-              borderWidth: 2,
-              borderDash: [5, 5],
-              tension: 0.3,
+              label: "5~10년 미만",
+              data: ageData.ageCounts.map((p) => p.mid5to10Count),
+              backgroundColor: "#818cf8",
+              borderRadius: 4,
+            },
+            {
+              label: "10년 이상",
+              data: ageData.ageCounts.map((p) => p.over10Count),
+              backgroundColor: "#10b981",
+              borderRadius: 4,
             },
           ],
         },
@@ -596,11 +592,11 @@
           },
           scales: {
             x: {
-              title: { display: true, text: "기업 수 증감 (개)" },
+              title: { display: true, text: "기업 수 증감 (개) · 2023.01~2026.05" },
               grid: { color: (c) => (c.tick.value === 0 ? "rgba(255,255,255,0.4)" : "rgba(255,255,255,0.06)") },
             },
             y: {
-              title: { display: true, text: "공장 수 증감 (개)" },
+              title: { display: true, text: "공장 수 증감 (개) · 2023.06~2025.12" },
               grid: { color: (c) => (c.tick.value === 0 ? "rgba(255,255,255,0.4)" : "rgba(255,255,255,0.06)") },
             },
           },
@@ -634,14 +630,6 @@
           maintainAspectRatio: false,
           plugins: {
             legend: { display: false },
-            tooltip: {
-              callbacks: {
-                afterLabel: function (context) {
-                  const item = reloData.keyCityCorridors[context.dataIndex];
-                  return `전입: ${item.inflow}건 / 전출: ${item.outflow}건\n특징: ${item.role}`;
-                },
-              },
-            },
           },
         },
       });
@@ -650,13 +638,17 @@
     // 7-2. 관내 시내 이동 비중 도넛 차트
     const ctxDonut = document.getElementById("chart-relocation-donut");
     if (ctxDonut) {
+      const { internalMoves, outflow, totalMoves } = reloData.overallMovement;
       chartInstances.reloDonut = new Chart(ctxDonut, {
         type: "doughnut",
         data: {
-          labels: ["남양주 관내 이동 (54.1%)", "경기도 타 시군 이전 (45.9%)"],
+          labels: [
+            `남양주 관내 이동 (${(internalMoves / totalMoves * 100).toFixed(1)}%)`,
+            `경기도 타 시군으로 전출 (${(outflow / totalMoves * 100).toFixed(1)}%)`,
+          ],
           datasets: [
             {
-              data: [reloData.overallMovement.internalMoves, reloData.overallMovement.totalMoves - reloData.overallMovement.internalMoves],
+              data: [internalMoves, outflow],
               backgroundColor: ["#10b981", "#334155"],
               borderColor: "transparent",
             },

@@ -34,14 +34,15 @@ document.addEventListener("DOMContentLoaded", () => {
  * KPI 카운트업 효과
  */
 function initCountUpAnimation() {
-  const countElements = document.querySelectorAll(".counter-val");
+  const countElements = document.querySelectorAll("[data-kpi]");
+  const metrics = new Map(window.NYJ_DATA.overview.keyMetrics.map(({ id, value }) => [id, value]));
 
   const observer = new IntersectionObserver(
     (entries, obs) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
           const el = entry.target;
-          const target = parseFloat(el.getAttribute("data-target"));
+          const target = metrics.get(el.dataset.kpi);
           const isFloat = el.getAttribute("data-float") === "true";
           const duration = 1600; // ms
           const startTime = performance.now();
@@ -201,20 +202,13 @@ function renderDynamicTables() {
   const diagTableBody = document.getElementById("table-diagnostics-body");
   if (diagTableBody) {
     diagTableBody.innerHTML = data.policy.diagnostics
-      .map((d, idx) => {
-        let badgeClass = "status-good";
-        if (d.status === "경고") badgeClass = "status-alert";
-        else if (d.status === "주의") badgeClass = "status-warning";
-
-        return `
+      .map((d, idx) => `
         <tr>
           <td><span class="rank-pill rank-etc">${idx + 1}</span> <strong>${d.domain}</strong></td>
           <td>${d.fact}</td>
           <td><span class="text-muted">${d.meaning}</span></td>
-          <td><span class="status-tag ${badgeClass}">${d.status}</span></td>
         </tr>
-      `;
-      })
+      `)
       .join("");
   }
 
@@ -234,7 +228,7 @@ function renderDynamicTables() {
           <td>${c.topMfgIndustry}</td>
           <td><strong style="color: ${isNyj ? 'var(--primary-emerald)' : 'inherit'}">${c.sciTechCompanies.toLocaleString()}개</strong></td>
           <td>${c.empPerBizStart} → ${c.empPerBizEnd}명 (${c.empChangeRate}%)</td>
-          <td>${c.newBizRate}% / ${c.closeBizRate}%</td>
+          <td>${c.newBizRate.toFixed(1)}% / ${c.closeBizRate.toFixed(1)}%</td>
         </tr>
       `;
       })
